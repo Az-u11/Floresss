@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flores Amarillas Para Ti 💛</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a002c, #3d0043, #1f002b);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Canvas para partículas de fondo */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3rem;
+      color: #ffe867;
+      text-shadow: 0 0 15px rgba(255, 232, 103, 0.6), 0 0 30px rgba(255, 215, 0, 0.4);
+      margin-bottom: 5px;
+      animation: pulseText 3s infinite alternate;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: #f3e5f5;
+      margin-bottom: 25px;
+      font-weight: 300;
+    }
+
+    /* Contenedor del Ramo */
+    .bouquet-container {
+      position: relative;
+      width: 320px;
+      height: 420px;
+      margin: 0 auto 20px;
+      cursor: pointer;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+      transition: transform 0.3s ease;
+    }
+
+    .bouquet-container:hover {
+      transform: scale(1.03);
+    }
+
+    /* Animación de balanceo suave */
+    .swaying {
+      animation: sway 4s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+    }
+
+    @keyframes sway {
+      0% { transform: rotate(-3deg); }
+      100% { transform: rotate(3deg); }
+    }
+
+    @keyframes pulseText {
+      0% { text-shadow: 0 0 10px rgba(255, 232, 103, 0.5); }
+      100% { text-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 235, 59, 0.6); }
+    }
+
+    /* Botones interactivos */
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #ffd700, #ff9800);
+      color: #3d0043;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+      background: linear-gradient(45deg, #ffee58, #ffa726);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Tarjeta modal con la carta */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #ffffff, #fffde7);
+      color: #333;
+      padding: 35px 25px;
+      border-radius: 20px;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transform: translateY(30px) scale(0.9);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .modal-overlay.active .card {
+      transform: translateY(0) scale(1);
+    }
+
+    .card h2 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #d81b60;
+      margin-bottom: 15px;
+    }
+
+    .card p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .card .close-btn {
+      background: #d81b60;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .card .close-btn:hover {
+      background: #ad1457;
+    }
+
+    /* Efecto de explocion de emojis */
+    .floating-emoji {
+      position: absolute;
+      pointer-events: none;
+      font-size: 24px;
+      animation: floatUp 1.8s forwards ease-out;
+      z-index: 5;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.6) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx)), calc(-50% - 120px)) scale(1.4) rotate(var(--rot));
+      }
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    <h1>Flores Amarillas Para Ti 💛</h1>
+    <p class="subtitle">Porque mereces todos los detalles bonitos del mundo</p>
+
+    <!-- Ramo SVG Interactivo -->
+    <div class="bouquet-container swaying" id="bouquet" onclick="burstEffects(event)" title="¡Haz clic en las flores!">
+      <svg viewBox="0 0 300 400" width="100%" height="100%">
+        <defs>
+          <!-- Gradiente de pétalos -->
+          <linearGradient id="petalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFF176" />
+            <stop offset="60%" stop-color="#FFD54F" />
+            <stop offset="100%" stop-color="#FFB300" />
+          </linearGradient>
+
+          <!-- Centro de la flor -->
+          <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#8D6E63" />
+            <stop offset="70%" stop-color="#5D4037" />
+            <stop offset="100%" stop-color="#3E2723" />
+          </radialGradient>
+
+          <!-- Tallo -->
+          <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#388E3C" />
+            <stop offset="100%" stop-color="#1B5E20" />
+          </linearGradient>
+
+          <!-- Envoltorio/Lazo -->
+          <linearGradient id="wrapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#f5f5f5" />
+          </linearGradient>
+          
+          <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff4081" />
+            <stop offset="100%" stop-color="#c2185b" />
+          </linearGradient>
+        </defs>
+
+        <!-- Tallos -->
+        <g stroke="url(#stemGrad)" stroke-width="6" stroke-linecap="round">
+          <path d="M 150 250 Q 130 310 120 370" />
+          <path d="M 150 250 Q 150 310 150 370" />
+          <path d="M 150 250 Q 170 310 180 370" />
+          <path d="M 100 180 Q 130 250 145 330" />
+          <path d="M 200 180 Q 170 250 155 330" />
+        </g>
+
+        <!-- Hojas -->
+        <path d="M 125 290 Q 90 280 100 310 Q 120 310 130 300 Z" fill="#2E7D32" />
+        <path d="M 175 290 Q 210 280 200 310 Q 180 310 170 300 Z" fill="#2E7D32" />
+        <path d="M 110 240 Q 75 220 85 250 Q 105 250 118 245 Z" fill="#388E3C" />
+        <path d="M 190 240 Q 225 220 215 250 Q 195 250 182 245 Z" fill="#388E3C" />
+
+        <!-- Envoltorio del ramo -->
+        <path d="M 100 260 L 200 260 L 175 360 L 125 360 Z" fill="url(#wrapGrad)" opacity="0.95" />
+        <!-- Lazo rosa -->
+        <path d="M 120 285 Q 150 295 180 285 L 175 300 Q 150 308 125 300 Z" fill="url(#ribbonGrad)" />
+        <circle cx="150" cy="293" r="8" fill="#c2185b" />
+        <path d="M 150 293 Q 135 320 125 340 M 150 293 Q 165 320 175 340" stroke="#c2185b" stroke-width="4" fill="none" />
+
+        <!-- FLOR CENTRAL (Girasol grande) -->
+        <g transform="translate(150, 150)">
+          <!-- Pétalos -->
+          <g fill="url(#petalGrad)">
+            <ellipse cx="0" cy="-45" rx="11" ry="30" />
+            <ellipse cx="0" cy="45" rx="11" ry="30" />
+            <ellipse cx="-45" cy="0" rx="30" ry="11" />
+            <ellipse cx="45" cy="0" rx="30" ry="11" />
+            <ellipse cx="-32" cy="-32" rx="11" ry="30" transform="rotate(45 -32 -32)" />
+            <ellipse cx="32" cy="32" rx="11" ry="30" transform="rotate(45 32 32)" />
+            <ellipse cx="-32" cy="32" rx="11" ry="30" transform="rotate(-45 -32 32)" />
+            <ellipse cx="32" cy="-32" rx="11" ry="30" transform="rotate(-45 32 -32)" />
+            
+            <ellipse cx="-18" cy="-40" rx="9" ry="25" transform="rotate(22.5 -18 -40)" />
+            <ellipse cx="18" cy="-40" rx="9" ry="25" transform="rotate(-22.5 18 -40)" />
+            <ellipse cx="-18" cy="40" rx="9" ry="25" transform="rotate(-22.5 -18 40)" />
+            <ellipse cx="18" cy="40" rx="9" ry="25" transform="rotate(22.5 18 40)" />
+          </g>
+          <!-- Centro -->
+          <circle cx="0" cy="0" r="26" fill="url(#centerGrad)" stroke="#FFA000" stroke-width="2" />
+        </g>
+
+        <!-- FLOR IZQUIERDA -->
+        <g transform="translate(90, 120) scale(0.85)">
+          <g fill="url(#petalGrad)">
+            <ellipse cx="0" cy="-40" rx="10" ry="25" />
+            <ellipse cx="0" cy="40" rx="10" ry="25" />
+            <ellipse cx="-40" cy="0" rx="25" ry="10" />
+            <ellipse cx="40" cy="0" rx="25" ry="10" />
+            <ellipse cx="-28" cy="-28" rx="10" ry="25" transform="rotate(45 -28 -28)" />
+            <ellipse cx="28" cy="28" rx="10" ry="25" transform="rotate(45 28 28)" />
+            <ellipse cx="-28" cy="28" rx="10" ry="25" transform="rotate(-45 -28 28)" />
+            <ellipse cx="28" cy="-28" rx="10" ry="25" transform="rotate(-45 28 -28)" />
+          </g>
+          <circle cx="0" cy="0" r="22" fill="url(#centerGrad)" />
+        </g>
+
+        <!-- FLOR DERECHA -->
+        <g transform="translate(210, 120) scale(0.85)">
+          <g fill="url(#petalGrad)">
+            <ellipse cx="0" cy="-40" rx="10" ry="25" />
+            <ellipse cx="0" cy="40" rx="10" ry="25" />
+            <ellipse cx="-40" cy="0" rx="25" ry="10" />
+            <ellipse cx="40" cy="0" rx="25" ry="10" />
+            <ellipse cx="-28" cy="-28" rx="10" ry="25" transform="rotate(45 -28 -28)" />
+            <ellipse cx="28" cy="28" rx="10" ry="25" transform="rotate(45 28 28)" />
+            <ellipse cx="-28" cy="28" rx="10" ry="25" transform="rotate(-45 -28 28)" />
+            <ellipse cx="28" cy="-28" rx="10" ry="25" transform="rotate(-45 28 -28)" />
+          </g>
+          <circle cx="0" cy="0" r="22" fill="url(#centerGrad)" />
+        </g>
+
+        <!-- FLOR SUPERIOR -->
+        <g transform="translate(150, 75) scale(0.75)">
+          <g fill="url(#petalGrad)">
+            <ellipse cx="0" cy="-40" rx="10" ry="25" />
+            <ellipse cx="0" cy="40" rx="10" ry="25" />
+            <ellipse cx="-40" cy="0" rx="25" ry="10" />
+            <ellipse cx="40" cy="0" rx="25" ry="10" />
+            <ellipse cx="-28" cy="-28" rx="10" ry="25" transform="rotate(45 -28 -28)" />
+            <ellipse cx="28" cy="28" rx="10" ry="25" transform="rotate(45 28 28)" />
+            <ellipse cx="-28" cy="28" rx="10" ry="25" transform="rotate(-45 -28 28)" />
+            <ellipse cx="28" cy="-28" rx="10" ry="25" transform="rotate(-45 28 -28)" />
+          </g>
+          <circle cx="0" cy="0" r="20" fill="url(#centerGrad)" />
+        </g>
+      </svg>
+    </div>
+
+    <p class="hint">✨ Toca las flores para ver la magia ✨</p>
+
+    <div class="btn-group">
+      <button class="btn" onclick="openModal()">💌 Leer Carta Especial</button>
+      <button class="btn btn-secondary" onclick="toggleMusic()" id="musicBtn">🎵 Música</button>
+    </div>
+  </div>
+
+  <!-- Modal con Mensaje Personalizado -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="card">
+      <h2>Para mi persona favorita 💛</h2>
+      <p>
+        Hoy quiero darte estas flores amarillas como un pequeño símbolo de la luz y alegría que traes a mi vida cada día. 
+        <br><br>
+        Gracias por tu sonrisa, por cada momento compartido y por ser exactamente quien eres. ¡Te quiero muchísimo!
+      </p>
+      <button class="close-btn" onclick="closeModal()">Cerrar con un abrazo 🤗</button>
+    </div>
+  </div>
+
+  <!-- Audio opcional -->
+  <audio id="bgMusic" loop>
+    <!-- Puedes reemplazar el src por el enlace MP3 de tu canción preferida -->
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-acoustic-guitar-112181.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    /* --- Sistema de Partículas de Fondo --- */
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + 20;
+        this.size = Math.random() * 5 + 2;
+        this.speedY = Math.random() * 1.5 + 0.5;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.opacity = Math.random() * 0.7 + 0.3;
+        this.color = Math.random() > 0.3 ? '#ffd700' : '#fff59d';
+        this.rotation = Math.random() * 360;
+        this.rotSpeed = Math.random() * 2 - 1;
+      }
+
+      update() {
+        this.y -= this.speedY;
+        this.x += Math.sin(this.y * 0.01) + this.speedX;
+        this.rotation += this.rotSpeed;
+
+        if (this.y < -20) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+
+        // Dibujar pétalo pequeño
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.size, this.size * 1.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < 45; i++) {
+        const p = new Particle();
+        p.y = Math.random() * canvas.height; // Distribuir al inicio
+        particles.push(p);
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    /* --- Efecto de Explosión de Emojis al hacer Clic --- */
+    function burstEffects(event) {
+      const container = document.querySelector('.container');
+      const rect = container.getBoundingClientRect();
+      const emojis = ['💛', '🌻', '✨', '🌸', '✨', '💛', '⭐'];
+
+      for (let i = 0; i < 12; i++) {
+        const el = document.createElement('span');
+        el.className = 'floating-emoji';
+        el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+        // Posición inicial respecto al clic
+        const x = event.clientX;
+        const y = event.clientY;
+
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+
+        // Desplazamiento aleatorio
+        const dx = (Math.random() - 0.5) * 160;
+        const rot = (Math.random() - 0.5) * 90;
+        el.style.setProperty('--dx', `${dx}px`);
+        el.style.setProperty('--rot', `${rot}deg`);
+
+        document.body.appendChild(el);
+
+        setTimeout(() => {
+          el.remove();
+        }, 1800);
+      }
+    }
+
+    /* --- Control del Modal --- */
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    /* --- Control de Música --- */
+    let isPlaying = false;
+    function toggleMusic() {
+      const audio = document.getElementById('bgMusic');
+      const btn = document.getElementById('musicBtn');
+
+      if (!isPlaying) {
+        audio.play().then(() => {
+          isPlaying = true;
+          btn.innerHTML = '⏸️ Pausar Música';
+        }).catch(err => {
+          alert('Por favor haz clic para permitir reproducir audio en tu navegador.');
+        });
+      } else {
+        audio.pause();
+        isPlaying = false;
+        btn.innerHTML = '🎵 Música';
+      }
+    }
+  </script>
+</body>
+</html>
